@@ -22,15 +22,7 @@ CREATE TABLE BeanBankAccounts
 );
 
 ALTER TABLE BeanBankAccounts ADD CONSTRAINT fk_BeanBankAccounts_BeanBankUsers FOREIGN KEY --Foreign key on Accounts that references Users
-(userID) REFERENCES BeanBankAccounts(userID) ON DELETE CASCADE;
-
-CREATE OR REPLACE PROCEDURE createUser(inputUsername VARCHAR2, inputPassword VARCHAR2, inputSuperuser NUMBER, inputFullName VARCHAR2) IS
-BEGIN
-
-INSERT INTO BeanBankUsers VALUES (BeanBankSequence.NEXTVAL, inputUsername, inputPassword, inputSuperuser, inputFullName);
-
-END;
-/
+(userID) REFERENCES BeanBankUsers(userID) ON DELETE CASCADE;
 
 CREATE OR REPLACE PROCEDURE createAccount(inputBalance VARCHAR2, inputUserID NUMBER) IS
 BEGIN
@@ -49,5 +41,6 @@ INSERT INTO BeanBankAccounts VALUES(1529, 1000000000000.99, 529);
 INSERT INTO BeanBankAccounts VALUES(1990, 0, 990);
 
 SELECT * FROM BeanBankUsers;
+SELECT * FROM BeanBankAccounts;
 
 COMMIT;
