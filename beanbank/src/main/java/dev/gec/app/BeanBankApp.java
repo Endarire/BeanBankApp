@@ -58,7 +58,7 @@ public class BeanBankApp
 						u = userv.makeUser(username, password, boolSuperuser, name);
 						userLoggedIn = userv.login(username, password);
 						System.out.println("Welcome, " + u.getName() + " to Bean Bank!  We've counted your beans and they're safe with us!");
-						bserv.makeBankAccount(u);
+						bserv.makeBankAccount(userLoggedIn);
 						System.out.println("We also made a starting account for you!  Cool beans!");
 						mainMenuLoop = false;
 					}
@@ -73,7 +73,7 @@ public class BeanBankApp
 						
 //						u = userv.makeUser(username, password);
 						userLoggedIn = userv.login(username, password);
-						System.out.println("Welcome to Bean Bank!  We've counted your beans and they're safe with us!");
+						System.out.println("Welcom1e to Bean Bank!  We've counted your beans and they're safe with us!");
 						mainMenuLoop = false;
 					}
 					break;
@@ -90,15 +90,17 @@ public class BeanBankApp
 				//Default User Abilities
 				while(userLoggedIn != null)
 				{
-					System.out.println("Input a number for one of these options (1, 2, 3, etc.), then push Enter."
-							+ "\n1: Make a new bank account.  (It's free!)"
-							+ "\n2: Change the balance of a bank account you own!  (Some call it deposit or withdrawal!)"
-							+ "\n3: Delete a bank account you own if the balance is 0.  (It's permanent!  Bye!)"
-							+ "\n4: View your accounts' current balances.  (Be financially prepared!)"
-							+ "\n5: Log out of the system.  (We'll miss you!)"
-							+ "\n6: View all users.  (Superuser only!)"
-							+ "\n7: Delete 1 user. (Superuser only!)"
-							+ "\n8: Delete all users. (Superuser only!)");
+					System.out.println("\nInput a number for one of these options (1, 2, 3, etc.), then push Enter."
+							+ "\n1:  Make a new bank account.  (It's free!)"
+							+ "\n2:  Change the balance of a bank account you own!  (Some call it deposit or withdrawal!)"
+							+ "\n3:  Delete a bank account you own if the balance is 0.  (It's permanent!  Bye!)"
+							+ "\n4:  View your accounts' current balances.  (Be financially prepared!)"
+							+ "\n5:  Log out of the system.  (We'll miss you!)"
+							+ "\n6:  View all users.  (Superuser only!)"
+							+ "\n7:  Delete 1 user. (Superuser only!)"
+							+ "\n8:  Delete all users. (Superuser only!)"
+							+ "\n9:  Create 1 user.  (Superuser only!)"
+							+ "\n10: Edit 1 user.  (Superuser only!)");
 					
 					int decision = Integer.parseInt(scan.nextLine());
 					switch(decision)
@@ -106,7 +108,7 @@ public class BeanBankApp
 						case 1: //Make a new bank account for the logged in user.
 						{
 							//Should each bank account have a user-input name?  Nae!  Use ID only
-							bserv.makeBankAccount(u);
+							bserv.makeBankAccount(userLoggedIn);
 							
 							System.out.println("Now you can spill your beans into your new account!");		
 						}
@@ -117,30 +119,33 @@ public class BeanBankApp
 								//If user has no accounts, one is made automatically!
 						{
 							double amount = 0;
-							System.out.println("Enter an account ID from this list to give (deposit) or eat (withdraw) your beans!");
+							System.out.println("Enter an account ID from this list to give (deposit) or eat (withdraw) your beans!\n");
 							System.out.println(bserv.getUserAccounts(userLoggedIn.getUserID()));
-							int pickAnAccount = Integer.parseInt(scan.nextLine());
 							
-							///FIX IT!\\\
-							//Use a foreach loop:  For all account IDs in logged in user's bank accounts\\
-//							for(BankAccount baloop : bserv.getUserAccounts(userLoggedIn.getUserID())) 
-//							{
-//								if(bserv.getUserAccounts(userLoggedIn.getUserID() == pickAnAccount))
-//								{
-//									System.out.println("SOMETHING SOMETHING!  THIS SHOULD PROCEED TO THE DEPOSIT/WITHDRAWAL MENU!");
-//								}
-//							}
-							System.out.println("Apologies, " + userLoggedIn.getUsername() + "!  Your input account ID didn't match any record in our system!");
-							
-//							if(pickAnAccount == bserv.getUserAccounts(userLoggedIn.getUserID()))
-//							{
-//								;
-//							}
-							
-							//INSERT LOGIC HERE TO CHANGE A BANK ACCOUNT'S BALANCE
-							System.out.println("For this account, enter a negative number to withdraw money or a positive number to deposit money!\nYour account can have a negative balance, meaning it's overdrawn!");
-							amount = Double.parseDouble(scan.nextLine());
-							bserv.depositOrWithdraw(bankAccount, amount); //Probably doesn't work yet!  Needs proper bankAccount object parameter!\\
+							int pickANumber = 0;
+							while(pickANumber != -1) //exit condition
+							{
+								pickANumber = Integer.parseInt(scan.nextLine());
+								
+								if(pickANumber == -1)
+								{
+									break;
+								}
+								
+								BankAccount holder = bserv.getAccountByAccountID(pickANumber);
+								
+								System.out.println("How many beans are we spilling into or from your account?");
+								System.out.println("For this account, enter a negative number to withdraw money or a positive number to deposit money!\nYour account can have a negative balance, meaning it's overdrawn!");
+								double changeOfBalance = Double.parseDouble(scan.nextLine());
+								holder.setBalance(holder.getBalance() + changeOfBalance);
+								
+								System.out.println("We counted your beans and found " + holder.getBalance() + " .");
+								
+								bserv.depositOrWithdraw(holder, holder.getBalance());
+								
+//								pickANumber = -1;
+								break;
+							}
 						};
 						
 						case 3: //Delete a bank account the logged in user has if it's 0 balance.
@@ -148,10 +153,35 @@ public class BeanBankApp
 							//If user has no accounts, show a console message saying the user has no accounts, then return to the logged in menu! 
 						{
 						//STUFF!\\
+							System.out.println("Enter a delicious account number to access!  You can only delete an account whose balance is 0!\nEnter -1 to leave the loop!");
+							System.out.println(bserv.getUserAccounts(userLoggedIn.getUserID()));
 						
-						
+							int pickANumber = 0;
+							while(pickANumber != -1) //exit condition
+							{
+								pickANumber = Integer.parseInt(scan.nextLine());
+								
+								if(pickANumber == -1)
+								{
+									break;
+								}
+								
+								BankAccount holder = bserv.getAccountByAccountID(pickANumber);
+								if(holder.getBalance() != 0.0)
+								{
+									System.out.println("You have too many beans to delete this account!  Spill them out (set account balance to 0) first!");
+								}
+								else
+								{
+									bserv.deleteBankAccount(userLoggedIn, pickANumber);
+									System.out.println("Your bank account misses be-aning around!  Bye now!");
+//									pickANumber = -1;
+								}
+								break;
+							}
+							
 						//INSERT LOGIC HERE TO CHOOSE A BANK ACCOUNT FOR THE LOGGED IN USER
-						System.out.println("Choose an account of yours at Bean Bank!");
+//						System.out.println("Choose an account of yours at Bean Bank!");
 
 						// IF THE ACCOUNT HAS A NON-ZERO BALANCE, WARN THE USER AND TELL THEM WHAT TO DO
 						
@@ -166,7 +196,6 @@ public class BeanBankApp
 						{
 							System.out.println("What have we here?  Oh,  yes!  Your account list!");
 							System.out.println(bserv.getUserAccounts(userLoggedIn.getUserID()));
-						
 					    };
 						break;
 						
@@ -183,7 +212,12 @@ public class BeanBankApp
 						{
 							if(userLoggedIn.isSuperuser() == true)
 							{
-								userv.getAllUserAccounts();
+								List<User> userv2 = userv.getAllUserAccounts();
+								
+								for(int a = 0; a < userv2.size(); a++)
+								{
+									System.out.println(userv2.get(a).toString());
+								}
 							}
 							else
 							{
@@ -197,7 +231,18 @@ public class BeanBankApp
 						{
 							if(userLoggedIn.isSuperuser() == true)
 							{
-//								userv.delet
+								List<User> userv2 = userv.getAllUserAccounts();
+								
+								for(int a = 0; a < userv2.size(); a++)
+								{
+									System.out.println(userv2.get(a).toString());
+								}
+								
+								System.out.println("\nPick a user to lose all their beans and be-an banished from this system!");
+								int pickANumber = Integer.parseInt(scan.nextLine());
+								User userToDelete = new User();
+								userToDelete.setUserID(pickANumber);
+								userv.deleteUser(userToDelete);
 							}
 							else
 							{
@@ -206,7 +251,7 @@ public class BeanBankApp
 						};
 						break;
 						
-						case 8: //Delete all user.  (Superuser only!)
+						case 8: //Delete all users.  (Superuser only!)
 							//Requires the initiating user be a superuser. 
 						{
 							if(userLoggedIn.isSuperuser() == true)
@@ -220,18 +265,75 @@ public class BeanBankApp
 						};
 						break;
 						
+						case 9:
+						{
+							if(userLoggedIn.isSuperuser() == true)
+							{
+								System.out.println("Please enter your username, such as Yardothrin.  Spaces aren't allowed!");
+								String username = scan.nextLine().trim();
+								System.out.println("Please enter your password, such as Charismata.  Spaces aren't allowed!");
+								String password = scan.nextLine().trim();
+							
+								u = userv.makeUser(username, password);								
+								System.out.println("You superuser have called a new user into bean-ing!");
+							}
+								
+							else
+							{
+								System.out.println("Only superusers can access this!  Nice try, though!");
+							}
+						};
+						break;
+						
+						case 10:
+						{
+							if(userLoggedIn.isSuperuser() == true)
+							{
+								List<User> userv2 = userv.getAllUserAccounts();
+								
+								for(int a = 0; a < userv2.size(); a++)
+								{
+									System.out.println(userv2.get(a).toString());
+								}
+								
+								System.out.println("\nEnter a user ID to change their details for your well-beaning!");
+								int pickANumber = Integer.parseInt(scan.nextLine());
+								User userToUpdate = new User();
+								userToUpdate.setUserID(pickANumber);
+								
+								System.out.println("Enter a new username for this user, such as Yandothrin.");
+								userToUpdate.setUsername(scan.nextLine());
+								
+								System.out.println("Enter a new password for this user, such as Charismata.");
+								userToUpdate.setPassword(scan.nextLine());
+								
+								System.out.println("Enter a new full name for this user, such as Bill Winston.");
+								userToUpdate.setName(scan.nextLine());
+								
+								userv.updateUserByID(userToUpdate);
+							}
+							else
+							{
+								System.out.println("Only superusers can access this!  Nice try, though!");
+							}
+							
+						};
+						break;
+						
 						default:
 						{
-							System.out.println("ERROR!  Invalid input!\n"
-									+ "Input a number for one of these options (1, 2, 3, etc.), then push Enter."
-									+ "\n1: Make a new bank account.  (It's free!)"
-									+ "\n2: Change the balance of a bank account you own!  (Some call it deposit or withdrawal!)"
-									+ "\n3: Delete a bank account you own if the balance is 0.  (It's permanent!  Bye!)"
-									+ "\n4: View your accounts' current balances.  (Be financially prepared!)"
-									+ "\n5: Log out of the system.  (We'll miss you!)"
-									+ "\n6: View all users.  (Superuser only!)"
-									+ "\n7: Delete 1 user. (Superuser only!)"
-									+ "\n8: Delete all users. (Superuser only!)");
+							System.out.println("\nERROR!  Invalid input!\n"
+									+ "\nInput a number for one of these options (1, 2, 3, etc.), then push Enter."
+									+ "\n1:  Make a new bank account.  (It's free!)"
+									+ "\n2:  Change the balance of a bank account you own!  (Some call it deposit or withdrawal!)"
+									+ "\n3:  Delete a bank account you own if the balance is 0.  (It's permanent!  Bye!)"
+									+ "\n4:  View your accounts' current balances.  (Be financially prepared!)"
+									+ "\n5:  Log out of the system.  (We'll miss you!)"
+									+ "\n6:  View all users.  (Superuser only!)"
+									+ "\n7:  Delete 1 user. (Superuser only!)"
+									+ "\n8:  Delete all users. (Superuser only!)"
+									+ "\n9:  Create 1 user.  (Superuser only!)"
+									+ "\n10: Edit 1 user.  (Superuser only!)");
 							
 							decision = Integer.parseInt(scan.nextLine());
 						}

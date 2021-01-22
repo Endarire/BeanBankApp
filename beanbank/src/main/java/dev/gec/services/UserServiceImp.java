@@ -27,6 +27,11 @@ public class UserServiceImp implements UserService
 	{
 		return usdao.getAllUsers();
 	}
+	
+	public List<User> getAllUserAccountsByUserID(int userID)
+	{
+		return usdao.getAllUsers();
+	}
 
 	public User makeUser(String username, String password)
 	{
@@ -40,17 +45,22 @@ public class UserServiceImp implements UserService
 		return usdao.createUser(username, password, superuser, name);
 	}
 	
+	public boolean updateUserByID(User user)
+	{
+		return usdao.updateUserByID(user);
+	}
+	
 	public boolean deleteUser(User user)
 	{
-		List<BankAccount> usersBankAccounts = badao.getAccountsByUserID(user.getUserID());
-		if (!usersBankAccounts.isEmpty())
-		{
-			System.out.println("ERROR!  Can't delete User since this user still has at least 1 bank account with a nonzero balance!"
-							 + "\nUsername: " + user.getUsername() + "\nUser ID: " + user.getUserID());
-			return false;
-		}
+		List<BankAccount> usersBankAccounts = badao.getBankAccountsByUserID(user.getUserID());
+//		if (!usersBankAccounts.isEmpty())
+//		{
+//			System.out.println("ERROR!  Can't delete User since this user still has at least 1 bank account with a nonzero balance!"
+//							 + "\nUsername: " + user.getUsername() + "\nUser ID: " + user.getUserID());
+//			return false;
+//		}
 		usdao.deleteUserByID(user.getUserID());
-		return deleteUser(user);
+		return true;
 	}
 	
 //	public boolean deleteUser(int userID)
@@ -100,5 +110,4 @@ public class UserServiceImp implements UserService
 		System.out.println("Apologies, " + username + "!  Your username and password didn't match any record in our system!");
 		return null;
 	}
-
 }

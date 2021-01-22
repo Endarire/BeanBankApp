@@ -16,6 +16,9 @@ public interface UserService
 	User makeUser(String username, String password);
 	User makeUser(String username, String password, boolean superuser, String name);
 	
+	//Edit user details!
+	boolean updateUserByID(User user);
+	
 	//Delete or purge stuff!
 	boolean deleteUser(User user);
 //	boolean deleteUserByID(int userID);

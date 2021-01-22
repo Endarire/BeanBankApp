@@ -32,6 +32,10 @@ public class UserDAOImp
 			{
 				isSuperuser = 1;
 			}
+//			else
+//			{
+//				isSuperUser = 0;
+//			}
 			
 			cs.setString(1, u.getUsername());
 			cs.setString(2, u.getPassword());
@@ -244,15 +248,16 @@ public class UserDAOImp
 	{
 		try
 		{
-			String SQL = "UPDATE users SET username = ?, password = ?, fullName = ? WHERE ID = ?";
+			String SQL = "UPDATE BeanBankUsers SET username = ?, password = ?, fullName = ? WHERE userID = ?";
 			PreparedStatement ps = con.prepareStatement(SQL);
 			
 			ps.setString(1, u.getUsername());
 			ps.setString(2, u.getPassword());
 			ps.setString(3, u.getName());
+			ps.setString(4, Integer.toString(u.getUserID()));
 			
 			ps.executeQuery();
-			System.out.println("User ID " + u.getUserID() + " now has a username of " + u.getUserID() + ", a password of " + u.getPassword() + ", and a full name of " + u.getName() + ".");
+			System.out.println("User ID " + u.getUserID() + " now has a username of " + u.getUsername() + ", a password of " + u.getPassword() + ", and a full name of " + u.getName() + ".");
 			return true;
 		}
 		catch(SQLException e)
@@ -262,16 +267,23 @@ public class UserDAOImp
 		return false;
 	}
 
-	public boolean deleteUserByID(int ID)
+	public boolean deleteUserByID(int userID)
 	{
 		try
 		{
-			String SQL = "DELETE BeanBankUsers WHERE userID = ?";
-			PreparedStatement ps = con.prepareStatement(SQL);
-			ps.setInt(1, ID);
+			System.out.println("We're in deleteUserByID with a user ID of " + userID + ".");
+			String SQL = "DELETE FROM BeanBankUsers WHERE userID = ?";
 			
-			ps.executeQuery();
-			System.out.println("The user with ID " + ID + " was deleted!  Bye bye now!");
+			CallableStatement cs = con.prepareCall(SQL);
+			cs.setString(1, Integer.toString(userID));
+			
+//			PreparedStatement ps = con.prepareStatement(SQL);
+//			ps.setString(1, Integer.toString(userID));
+//			ps.setInt(1, userID);
+			
+//			ps.executeQuery();
+			cs.execute();
+			System.out.println("The user with ID " + userID + " was deleted!  Bye bye now!");
 			return true;
 		}
 		catch(SQLException e)

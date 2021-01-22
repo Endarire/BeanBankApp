@@ -154,8 +154,9 @@ public class BankAccount
 	}
 
 	@Override
-	public String toString() {
-		return "BankAccount [accountID=" + accountID + ", userID=" + userID + ", name=" + name + ", balance=" + balance
+	public String toString()
+	{
+		return "\nBank Account [accountID=" + accountID + ", userID=" + userID + ", name=" + name + ", balance=" + balance
 				+ "]";
-	}	
+	}
 }

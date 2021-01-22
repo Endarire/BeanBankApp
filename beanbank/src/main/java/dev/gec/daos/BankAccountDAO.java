@@ -18,7 +18,8 @@ public interface BankAccountDAO
 	
 	public List<BankAccount> getAllBankAccounts();
 	
-	public List<BankAccount> getAccountsByUserID(int userID);
+//	public List<BankAccount> getAccountsByUserID(int userID);
+	public List<BankAccount> getAccountsByUserObject(User user);
 	
 	//UPDATE
 	public boolean depositOrWithdraw(BankAccount account, double amount);	//Coded as a bool!

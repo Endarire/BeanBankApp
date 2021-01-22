@@ -20,6 +20,7 @@ public class BankAccountDAOImp implements BankAccountDAO
 	public BankAccount makeBankAccount(int userID)
 	{
 		BankAccount ba = new BankAccount(userID);
+		System.out.println("We're in makeBankAccount(int userID) and we passed in a user ID of " + userID + ".");
 		try
 		{
 			//Java doesn't know our Actor sequence (actorSequence)!
@@ -27,7 +28,7 @@ public class BankAccountDAOImp implements BankAccountDAO
 			String SQL = "CALL createAccount(?, ?)"; //2 input parameters on the SQL procedure
 			CallableStatement cs = con.prepareCall(SQL);
 			
-			cs.setString(1, String.valueOf(0));
+			cs.setString(1, String.valueOf(0));  //initial balance
 			cs.setString(2, String.valueOf(userID));
 			
 			cs.execute();	//If there's an error, move to Catch block!
@@ -49,6 +50,8 @@ public class BankAccountDAOImp implements BankAccountDAO
 		{
 			//Java doesn't know our SQL sequence!
 			//Better if we use our SQL stored procedure!
+			System.out.println("WE ARE IN MAKEBANKACCOUNT(USER) FOR " + user + ".\n");
+			
 			String SQL = "CALL createAccount(?, ?)"; //2 input parameters on the SQL procedure
 			CallableStatement cs = con.prepareCall(SQL);
 			
@@ -174,12 +177,55 @@ public class BankAccountDAOImp implements BankAccountDAO
 		return -1; //Returned bad result!
 	}
 	
+	/*
 	public List<BankAccount> getAccountsByUserID(int userID)
-	{
-		List<BankAccount> allBankAccounts = new ArrayList<BankAccount>();
+	{	
+		List<BankAccount> accountsList = new ArrayList<BankAccount>();
+		
 		try
 		{
-			String SQL = "SELECT * FROM account WHERE userID = ?";
+			//Assemble the string to return the BankAccount objects that belong to a User!
+//			System.out.println("\"SELECT BeanBankAccounts.accountID, BeanBankAccounts.balance FROM BeanBankAccounts INNER JOIN BeanBankUsers on BeanBankAccounts.userID = BeanBankUsers.userID AND BeanBankAccounts.userID = ?");
+			String SQL = "SELECT BeanBankAccounts.accountID, BeanBankAccounts.balance FROM BeanBankAccounts INNER JOIN BeanBankUsers on BeanBankAccounts.userID = BeanBankUsers.userID AND BeanBankAccounts.userID = ?";
+			PreparedStatement ps = con.prepareStatement(SQL);
+			ps.setInt(1, userID);
+			ResultSet rs = ps.executeQuery();
+			
+			//Now, populate the list with the appropriate accounts!
+			System.out.println("Let's view your bank accounts!");
+			while(rs.next())
+			{
+				BankAccount b = new BankAccount();
+				b.setAccountID(rs.getInt("accountID"));
+				b.setBalance(rs.getDouble("balance"));
+				b.setUserID(rs.getInt("userID"));
+				
+				accountsList.add(b);
+//				accountsList.add(new BankAccount(rs.getInt(1), rs.getDouble(2), rs.getString(3)));
+			}
+			
+			// Safely close the statements.
+			rs.close();
+			ps.close();
+			
+			return accountsList;
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		//Return the list of results we found regardless!
+		return null;
+	}
+	*/
+
+	public List<BankAccount> getBankAccountsByUserID(int userID)
+	{
+		List<BankAccount> accountList = new ArrayList<BankAccount>();
+		try
+		{
+			String SQL = "SELECT * FROM BeanBankAccounts WHERE userID = ?";
 			
 			PreparedStatement ps = con.prepareStatement(SQL);
 			
@@ -187,12 +233,16 @@ public class BankAccountDAOImp implements BankAccountDAO
 			
 			ResultSet rs = ps.executeQuery();
 			
-			while (rs.next())
+			while(rs.next())
 			{
-				allBankAccounts.add(new BankAccount(rs.getInt("userID"), rs.getDouble("balance"), rs.getInt("accountID")));
+				BankAccount ba = new BankAccount();
+				ba.setAccountID(rs.getInt("accountID"));
+				ba.setBalance(rs.getDouble("balance"));
+				ba.setUserID(rs.getInt("userID"));
+				
+				accountList.add(ba);
 			}
-			return allBankAccounts;
-			
+			return accountList;
 		}
 		catch (SQLException e)
 		{
@@ -201,12 +251,43 @@ public class BankAccountDAOImp implements BankAccountDAO
 		return null;
 	}
 	
+	//HOW SHOULD WE DO THIS?\\
+//	public List<BankAccount> getAccountsByUserObject(User user)
+//	{
+//		BankAccount ba = new BankAccount();
+//		try
+//		{
+//			String SQL = "SELECT * FROM account WHERE userID = ?";
+//			
+//			PreparedStatement ps = con.prepareStatement(SQL);
+//			
+//			ps.setString(1, Integer.toString(user.getUserID()));
+//			
+//			ResultSet rs = ps.executeQuery();
+//			
+//			if(rs.next())
+//			{
+//				ba.setAccountID(rs.getInt("accountID"));
+//				ba.setBalance(rs.getDouble("balance"));
+//				ba.setUserID(rs.getInt("userID"));
+//				return ba;
+//			}
+//			
+//		}
+//		catch (SQLException e)
+//		{
+//			e.getStackTrace();	
+//		}
+//		return null;
+//	}
+	
 	public BankAccount getAccountByAccountID(int accountID)
 	{
 		BankAccount ba = new BankAccount();
 		try
 		{
-			String SQL = "SELECT * FROM account WHERE accountID = ?";
+			System.out.println("We're at the start of getAccountByAccountID at account ID " + accountID + ".");
+			String SQL = "SELECT * FROM BeanBankAccounts WHERE accountID = ?";
 			
 			PreparedStatement ps = con.prepareStatement(SQL);
 			
@@ -269,17 +350,17 @@ public class BankAccountDAOImp implements BankAccountDAO
 	{
 		try
 		{
-//			String SQL = "UPDATE BeanBankAccounts SET balance = ?, worth = ? WHERE id = ?";
-			String SQL = "UPDATE BeanBankAccounts SET balance = ?, WHERE accountID = ?";
+			String SQL = "UPDATE BeanBankAccounts SET balance = ? WHERE accountID = ?";
 			PreparedStatement ps = con.prepareStatement(SQL);
 			
 			BankAccount b = new BankAccount();
 			//			ps.setString(1, change.getName());
-			ps.setString(1, Double.toString(b.getBalance() + amount));
-			ps.setString(2, Integer.toString(b.getAccountID()));
+//			ps.setString(1, Double.toString(b.getBalance() + amount));
+			ps.setString(1, Double.toString(amount));
+			ps.setString(2, Integer.toString(account.getAccountID()));
 			
 			ps.executeQuery();
-			System.out.println("Account with ID " + b.getAccountID() + " now has a balance of " + b.getBalance() + " after that transaction of $" + amount + ".");
+			System.out.println("Account with ID " + account.getAccountID() + " now has a balance of " + account.getBalance() + " after that transaction of $" + amount + ".");
 			return true;
 		}
 		catch(SQLException e)
@@ -390,5 +471,11 @@ public class BankAccountDAOImp implements BankAccountDAO
 			e.getStackTrace();	
 		}
 		return false;
+	}
+
+	public List<BankAccount> getAccountsByUserObject(User user)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

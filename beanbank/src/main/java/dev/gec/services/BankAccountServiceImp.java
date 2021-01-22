@@ -47,7 +47,7 @@ public class BankAccountServiceImp implements BankAccountService
 
 	public List<BankAccount> getUserAccounts(int userID)
 	{
-		return badao.getAccountsByUserID(userID);
+		return badao.getBankAccountsByUserID(userID);
 	}
 
 	//Changes balance server-side.
